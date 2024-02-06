@@ -19,8 +19,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.MQTT,
     options: {
-      host: configService.get('MQTT_HOST'),
-      port: parseInt(configService.get('MQTT_PORT') as string),
+      url: configService.get('MQTT_HOST'),
     },
   });
 
