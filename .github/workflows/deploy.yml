@@ -52,11 +52,11 @@ jobs:
         password: ${{ secrets.SSH_PASSWORD }}
         port: ${{ secrets.SSH_PORT }}
         script: |
-          echo "${{ secrets.ENV_FILE_PRODUCTION }}" > .env.intellisense-devicenet
-          docker stop intellisense-devicesnet
-          docker rm intellisense-devicesnet
+          sudo echo "${{ secrets.ENV_FILE_PRODUCTION }}" > .env.intellisense-devicenet
+          sudo docker stop intellisense-devicesnet
+          sudo docker rm intellisense-devicesnet
 
-          docker rmi sigitnurmajid/intellisense-devicesnet:main
-          docker pull sigitnurmajid/intellisense-devicesnet:main
+          sudo docker rmi sigitnurmajid/intellisense-devicesnet:main
+          sudo docker pull sigitnurmajid/intellisense-devicesnet:main
 
-          docker run -t -d -p 3333:3333 --network deploy_default --env-file .env.intellisense-devicenet --name intellisense-devicesnet sigitnurmajid/intellisense-devicesnet:main
+          sudo docker run -t -d -p 3333:3333 --network deploy_default --env-file .env.intellisense-devicenet --name intellisense-devicesnet sigitnurmajid/intellisense-devicesnet:main
