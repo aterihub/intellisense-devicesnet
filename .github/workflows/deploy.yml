@@ -59,4 +59,4 @@ jobs:
           sudo docker rmi sigitnurmajid/intellisense-devicesnet:main
           sudo docker pull sigitnurmajid/intellisense-devicesnet:main
 
-          sudo docker run -t -d -p 3000:3000 --network deploy_default --env-file .env.intellisense-devicenet --name intellisense-devicesnet sigitnurmajid/intellisense-devicesnet:main
+          sudo docker run -t -d -p 3000:3000 --network deploy_default --env-file .env.intellisense-devicenet --name intellisense-devicesnet --restart always sigitnurmajid/intellisense-devicesnet:main
