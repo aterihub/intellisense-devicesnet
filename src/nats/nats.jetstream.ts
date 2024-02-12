@@ -43,11 +43,8 @@ export class NatsJetsream implements OnModuleInit {
   }
 
   private getSubscriber(subject: string): any | null {
-    const subSubject = subject.split('.')[2];
-    const pattern = new RegExp(`AI\.v1\.${subSubject}`);
-
     for (const subscriber of this.subscribers) {
-      if (pattern.test(subscriber.subject)) {
+      if (this.matches(subject, subscriber.subject)) {
         return subscriber;
       }
     }
@@ -171,5 +168,29 @@ export class NatsJetsream implements OnModuleInit {
       const streamInfo = await this.jsm.streams.add({ name: streamName });
       this.logger.log(`Stream ${streamInfo.config.name} created`);
     }
+  }
+
+  private matches(pattern, topic) {
+    const SEPARATOR = '.';
+    const SINGLE = '*';
+
+    const patternSegments = pattern.split(SEPARATOR);
+    const topicSegments = topic.split(SEPARATOR);
+
+    const patternLength = patternSegments.length;
+    const topicLength = topicSegments.length;
+
+    for (let i = 0; i < patternLength; i++) {
+      const currentPattern = patternSegments[i];
+      const currentTopic = topicSegments[i];
+
+      if (currentPattern !== currentTopic) {
+        if (currentTopic === SINGLE) {
+          continue;
+        }
+        return false;
+      }
+    }
+    return patternLength === topicLength;
   }
 }
