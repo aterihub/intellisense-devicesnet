@@ -15,6 +15,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { RequestLogsInterceptor } from './request-logs/request-logs.interceptor';
 import { ProvisioningModule } from './provisioning/provisioning.module';
 import { ApiKeysModule } from './api-keys/api-keys.module';
+import { TelemetryModule } from './telemetry/telemetry.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { ApiKeysModule } from './api-keys/api-keys.module';
     RequestLogsModule,
     ProvisioningModule,
     ApiKeysModule,
+    TelemetryModule,
   ],
   controllers: [AppController],
   providers: [
