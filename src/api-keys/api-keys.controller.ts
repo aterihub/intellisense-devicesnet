@@ -21,7 +21,7 @@ import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { CreateApiKeysDto } from './dto/create-api-keys.dto';
 import { UpdateApiKeysDto } from './dto/update-api-keys.dto';
 import { ApiKeysEntity } from './entity/api-keys-entity';
-import { ApiKeysGuard } from './guards/access-token.guard';
+import { ApiKeysGuard } from './guards/api-keys.guard';
 
 @Controller('api-keys')
 @UsePipes(ZodValidationPipe)
