@@ -16,5 +16,6 @@ import { InfluxdbClientModule } from 'src/influxdb/influxdb.module';
   ],
   controllers: [DevicesController],
   providers: [DevicesService, DeviceNatsConsumer],
+  exports: [DevicesService],
 })
 export class DevicesModule {}
