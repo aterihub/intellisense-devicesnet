@@ -16,7 +16,7 @@ export class GatewayNatsConsumer {
     private configService: ConfigService,
   ) {}
 
-  @Consume('A1.v1.*.heartbeat')
+  @Consume('AI.v1.*.heartbeat')
   async heart(@Subject() subject: string, @Message() message: JsMsg) {
     const { gateway } = this.parseSubject(subject);
     try {
@@ -24,7 +24,20 @@ export class GatewayNatsConsumer {
         serialNumber: gateway,
       });
 
-      const { temperature, humidity, messageId, rss, ts } = message.json() as {
+      const {
+        messageId,
+        ts,
+        uptime,
+        temperature,
+        humidity,
+        loraRssi,
+        hwVersion,
+        fwVersion,
+      } = message.json() as {
+        uptime: number;
+        loraRssi: number;
+        hwVersion: number;
+        fwVersion: number;
         temperature: number;
         humidity: number;
         messageId: number;
@@ -42,11 +55,14 @@ export class GatewayNatsConsumer {
         point.tag('gateway', gateway);
         point.floatField('temperature', temperature);
         point.floatField('humidity', humidity);
-        point.intField('rss', rss);
         point.intField('messageId', messageId);
+        point.intField('uptime', uptime);
+        point.intField('loraRssi', loraRssi);
+        point.intField('hwVersion', hwVersion);
+        point.intField('fwVersion', fwVersion);
 
         if (ts) {
-          point.timestamp(new Date(ts));
+          point.timestamp(new Date(ts * 1000));
         }
 
         if (metaGateway.group) {
@@ -64,7 +80,7 @@ export class GatewayNatsConsumer {
       message.ack();
     } catch (error) {
       this.logger.error(`ERROR HEART ${error.message}`);
-      const errors = ['No Gateways found', ' Bad JSON'];
+      const errors = ['No Gateways found', 'Bad JSON'];
       if (errors.includes(error.message)) message.ack();
     }
   }

@@ -16,21 +16,34 @@ export class DeviceNatsConsumer {
     private configService: ConfigService,
   ) {}
 
-  @Consume('A1.v1.*.*.heart')
+  @Consume('AI.v1.*.*.heartbeat')
   async heart(@Subject() subject: string, @Message() message: JsMsg) {
     const { gateway, device } = this.parseSubject(subject);
     try {
-      const metaDevice = await this.devicesService.findOneWithSerialNumber({
-        serialNumber: device,
-      });
-
-      const { temperature, humidity, messageId, rss, ts } = message.json() as {
+      const {
+        messageId,
+        ts,
+        uptime,
+        temperature,
+        humidity,
+        loraRssi,
+        hwVersion,
+        fwVersion,
+      } = message.json() as {
+        uptime: number;
+        loraRssi: number;
+        hwVersion: number;
+        fwVersion: number;
         temperature: number;
         humidity: number;
         messageId: number;
         rss: number;
         ts: number;
       };
+
+      const metaDevice = await this.devicesService.findOneWithSerialNumber({
+        serialNumber: device,
+      });
 
       if (metaDevice.tenant) {
         const writeApi = this.influx.getWriteApi(
@@ -43,11 +56,14 @@ export class DeviceNatsConsumer {
         point.tag('device', device);
         point.floatField('temperature', temperature);
         point.floatField('humidity', humidity);
-        point.intField('rss', rss);
         point.intField('messageId', messageId);
+        point.intField('uptime', uptime);
+        point.intField('loraRssi', loraRssi);
+        point.intField('hwVersion', hwVersion);
+        point.intField('fwVersion', fwVersion);
 
         if (ts) {
-          point.timestamp(new Date(ts));
+          point.timestamp(new Date(ts * 1000));
         }
 
         if (metaDevice.group) {
@@ -65,22 +81,26 @@ export class DeviceNatsConsumer {
       message.ack();
     } catch (error) {
       this.logger.error(`ERROR HEART ${error.message}`);
-      const errors = ['No Devices found', ' Bad JSON'];
+      const errors = ['No Devices found', 'Bad JSON'];
       if (errors.includes(error.message)) message.ack();
     }
   }
 
-  @Consume('device.v1.*.*.data')
+  @Consume('AI.v1.*.*.data')
   async telemetry(@Subject() subject: string, @Message() message: JsMsg) {
     const { gateway, device } = this.parseSubject(subject);
     try {
+      const { messageId, loraRssi, ts, ...destruct } = message.json() as {
+        messageId: number;
+        loraRssi: number;
+        ts: number;
+      };
+      const { data } = destruct as {
+        data: any;
+      };
       const metaDevice = await this.devicesService.findOneWithSerialNumber({
         serialNumber: device,
       });
-
-      const { ts, ...data } = message.json() as {
-        ts: number;
-      };
 
       if (metaDevice.tenant && metaDevice.type && data) {
         const writeApi = this.influx.getWriteApi(
@@ -91,9 +111,11 @@ export class DeviceNatsConsumer {
         const point = new Point(metaDevice.type);
         point.tag('gateway', gateway);
         point.tag('device', device);
+        point.intField('messageId', messageId);
+        point.intField('loraRssi', loraRssi);
 
         if (ts) {
-          point.timestamp(new Date(ts));
+          point.timestamp(new Date(ts * 1000));
         }
 
         if (metaDevice.group) {
@@ -126,8 +148,8 @@ export class DeviceNatsConsumer {
 
       message.ack();
     } catch (error) {
-      this.logger.error(`ERROR HEART ${error.message}`);
-      const errors = ['No Devices found', ' Bad JSON'];
+      this.logger.error(`ERROR DATA ${error.message}`);
+      const errors = ['No Devices found', 'Bad JSON'];
       if (errors.includes(error.message)) message.ack();
     }
   }
