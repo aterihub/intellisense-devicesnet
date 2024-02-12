@@ -1,73 +1,164 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# IntelliSense Water Monitoring API Document
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Get Last Data 
+  **GET** ```{{url}}telemetry/last/:serialNumber```
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+  ### Authentication
+  API KEY - add to header with key "api-key"
 
-## Description
+  ### Param
+  Using serialNumber device
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+  ### Query
+  List of Query
+  - fields *required (Note, if want to get fields data more than one that can use comma as separator ex. TDS,loraRssi,messageId)
+  - building *optional
+  - floor *optional
+  - division *optional
+  - tray *optional
 
-## Installation
+  ### Response Message
+  ```
+  -- If data not empty --
+  {
+    "status": "success",
+    "data": {
+      "telemetry": {
+        "TDS": {
+          "_time": "2024-01-12T13:01:34Z",
+          "_value": 0,
+          "Building": "Atas",
+          "Floor": "1",
+          "_field": "TDS",
+          "device": "AI3494545BA558",
+          "gateway": "MIA744DBD758A68"
+        },
+        "loraRssi": {
+          "_time": "2024-01-12T13:01:34Z",
+          "_value": 222,
+          "Building": "Atas",
+          "Floor": "1",
+          "_field": "loraRssi",
+          "device": "AI3494545BA558",
+          "gateway": "MIA744DBD758A68"
+        },
+        "messageId": {
+          "_time": "2024-01-12T13:01:34Z",
+          "_value": 38469,
+          "Building": "Atas",
+          "Floor": "1",
+          "_field": "messageId",
+          "device": "AI3494545BA558",
+          "gateway": "MIA744DBD758A68"
+        }
+      }
+    }
+  }
 
-```bash
-$ npm install
-```
+  -- If data empty --
+  {
+    "status": "success",
+    "data": {
+      "telemetry":{}
+    }
+  }
+  ```
+<div style="page-break-after: always;"></div>
 
-## Running the app
+## Get History Data 
+  **GET** ```{{url}}telemetry/last/:serialNumber```
 
-```bash
-# development
-$ npm run start
+  ### Authentication
+  API KEY - add to header with key "api-key"
 
-# watch mode
-$ npm run start:dev
+  ### Param
+  Using serialNumber device
 
-# production mode
-$ npm run start:prod
-```
+  ### Query
+  List of Query
+  - fields *required (Note, if want to get fields data more than one that can use comma as separator ex. TDS,loraRssi,messageId)
+  - startTime *required (Note, using ISO 8601 format with UTC timezone. ex. 2022-01-12T13:01:34Z)
+  - endTime *required (Note, using ISO 8601 format with UTC timezone. ex. 2024-01-12T13:01:34Z)
+  - building *optional
+  - floor *optional
+  - division *optional
+  - tray *optional
 
-## Test
+  ### Response Message
+  ```
+  -- If data not empty --
+  {
+	"status": "success",
+	"data": {
+		"telemetries": {
+			"TDS": [
+				{
+					"_time": "2024-01-12T12:37:40Z",
+					"_value": 0,
+					"Building": "Atas",
+					"Floor": "1",
+					"_field": "TDS",
+					"device": "AI3494545BA558",
+					"gateway": "MIA744DBD758A68"
+				},
+				{
+					"_time": "2024-01-12T12:37:45Z",
+					"_value": 0,
+					"Building": "Atas",
+					"Floor": "1",
+					"_field": "TDS",
+					"device": "AI3494545BA558",
+					"gateway": "MIA744DBD758A68"
+				}
+			],
+			"loraRssi": [
+				{
+					"_time": "2024-01-12T12:37:40Z",
+					"_value": 222,
+					"Building": "Atas",
+					"Floor": "1",
+					"_field": "loraRssi",
+					"device": "AI3494545BA558",
+					"gateway": "MIA744DBD758A68"
+				},
+				{
+					"_time": "2024-01-12T12:37:45Z",
+					"_value": 222,
+					"Building": "Atas",
+					"Floor": "1",
+					"_field": "loraRssi",
+					"device": "AI3494545BA558",
+					"gateway": "MIA744DBD758A68"
+				}
+			],
+			"messageId": [
+				{
+					"_time": "2024-01-12T12:37:40Z",
+					"_value": 38050,
+					"Building": "Atas",
+					"Floor": "1",
+					"_field": "messageId",
+					"device": "AI3494545BA558",
+					"gateway": "MIA744DBD758A68"
+				},
+				{
+					"_time": "2024-01-12T12:37:45Z",
+					"_value": 38051,
+					"Building": "Atas",
+					"Floor": "1",
+					"_field": "messageId",
+					"device": "AI3494545BA558",
+					"gateway": "MIA744DBD758A68"
+        }]
+      }
+    }
+  }
 
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
+    -- If data empty --
+  {
+    "status": "success",
+    "data": {
+      "telemetry":{}
+    }
+  }
+  ```
