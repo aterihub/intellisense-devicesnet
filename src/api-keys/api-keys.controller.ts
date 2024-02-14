@@ -41,7 +41,7 @@ export class ApiKeysController {
     );
     return {
       status: 'success',
-      data: { apikeys: apiKeysEntity },
+      data: { apiKeys: apiKeysEntity },
     };
   }
 
@@ -64,7 +64,7 @@ export class ApiKeysController {
   @UseGuards(AccessTokenGuard)
   async create(@Body() data: CreateApiKeysDto) {
     const expiresIn = this.apiKeysService.convertDatesTotDaysFormat(
-      new Date(data.expiresIn),
+      new Date(data.expiresAt),
     );
     // generate secret key here
     const secretKey = this.apiKeysService.uniqueStringSecure(64, 'base64');
@@ -115,7 +115,7 @@ export class ApiKeysController {
     };
   }
 
-  @Get('test')
+  @Get('/test/test')
   @RequestLogs('testApiKeys')
   @HttpCode(HttpStatus.OK)
   @UseGuards(ApiKeysGuard)
