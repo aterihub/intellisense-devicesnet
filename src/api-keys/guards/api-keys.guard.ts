@@ -20,9 +20,12 @@ export class ApiKeysGuard implements CanActivate {
     }
 
     try {
-      const { secretKey } = await this.apiKeysService.findOne({
+      const { secretKey, isEnable } = await this.apiKeysService.findOne({
         apiKey,
       });
+
+      if (!isEnable) throw new UnauthorizedException();
+
       const payload = await this.apiKeysService.verifyAccessToken(
         apiKey,
         secretKey,
