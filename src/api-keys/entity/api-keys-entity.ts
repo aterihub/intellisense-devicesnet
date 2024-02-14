@@ -8,7 +8,7 @@ export class ApiKeysEntity implements ApiKeys {
 
   id: string;
   username: string;
-  expiresIn: string;
+  expiresAt: string;
   description: string | null;
   isEnable: boolean;
 

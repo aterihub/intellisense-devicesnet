@@ -3,7 +3,7 @@ import z from 'zod';
 
 const CreateApiKeysZ = z.object({
   username: z.string(),
-  expiresIn: z.string(),
+  expiresAt: z.string(),
   isEnable: z.boolean(),
   description: z.string().optional(),
 });

@@ -102,7 +102,7 @@ model MqttAccount {
 model ApiKeys {
   id          String  @id @default(uuid())
   username    String  @unique @db.VarChar(30)
-  expiresIn   String  @db.VarChar(30)
+  expiresAt   String  @db.VarChar(30)
   isEnable    Boolean
   apiKey      String
   secretKey   String
