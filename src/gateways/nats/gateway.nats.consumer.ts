@@ -30,12 +30,10 @@ export class GatewayNatsConsumer {
         uptime,
         temperature,
         humidity,
-        loraRssi,
         hwVersion,
         fwVersion,
       } = message.json() as {
         uptime: number;
-        loraRssi: number;
         hwVersion: number;
         fwVersion: number;
         temperature: number;
@@ -57,7 +55,6 @@ export class GatewayNatsConsumer {
         point.floatField('humidity', humidity);
         point.intField('messageId', messageId);
         point.intField('uptime', uptime);
-        point.intField('loraRssi', loraRssi);
         point.intField('hwVersion', hwVersion);
         point.intField('fwVersion', fwVersion);
 
