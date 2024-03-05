@@ -44,4 +44,16 @@ export class TelemetryController {
       data: { telemetries },
     };
   }
+
+  @Get('/flow-usage/:device')
+  @RequestLogs('getFlowUsageTelemetry')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ApiKeysGuard)
+  async flowUsage(@Query() query: any, @Param('device') device: string) {
+    const flowUsage = await this.telemetryService.flowUsage(query, device);
+    return {
+      status: 'success',
+      data: { flowUsage },
+    };
+  }
 }

@@ -83,6 +83,7 @@
   - floor *optional
   - division *optional
   - tray *optional
+  - aggregate *optional (Duration of windows ex. 1m,2m,10m,1h,2h)
 
   ### Response Message
   ```
@@ -159,6 +160,47 @@
     "status": "success",
     "data": {
       "telemetry":{}
+    }
+  }
+  ```
+
+## Get Flow Usage Data 
+  **GET** ```{{url}}telemetry/flow-usage/:serialNumber```
+
+  ### Authentication
+  API KEY - add to header with key "api-key"
+
+  ### Param
+  Using serialNumber device
+
+  ### Query
+  List of Query
+  - startTime *required (Note, using ISO 8601 format with UTC timezone. ex. 2022-01-12T13:01:34Z)
+  - endTime *required (Note, using ISO 8601 format with UTC timezone. ex. 2024-01-12T13:01:34Z)
+
+  ### Response Message
+  ```
+  -- If data not empty --
+  {
+	"status": "success",
+	"data": {
+		"flowUsage": {
+			"Building": "DEPAN",
+			"Division": "FC",
+			"Floor": "8",
+			"_field": "flow",
+			"device": "AI349454596D88",
+			"gateway": "MIA744DBD758954",
+			"_value": 1
+      }
+    }
+  }
+
+    -- If data empty --
+  {
+	"status": "success",
+	"data": {
+		"flowUsage": {}
     }
   }
   ```
