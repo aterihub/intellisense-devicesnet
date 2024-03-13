@@ -127,7 +127,7 @@ export class TelemetryService {
     return refactoredData;
   }
 
-  async flowUsage(query: any, deviceNumber: string) {
+  async volumeUsage(query: any, deviceNumber: string) {
     const device = await this.devicesService.findOneWithSerialNumber({
       serialNumber: deviceNumber,
     });
@@ -143,7 +143,7 @@ export class TelemetryService {
     |> range(start: ${startTime}, stop: ${endTime})
     |> filter(fn: (r) => r["_measurement"] == "${type}")
     |> filter(fn: (r) => r["device"] == "${serialNumber}")
-    |> filter(fn: (r) => r["_field"] == "flow")
+    |> filter(fn: (r) => r["_field"] == "volume")
     |> spread()
     |> drop(columns: ["_start", "_stop"])`;
 
@@ -155,5 +155,41 @@ export class TelemetryService {
       },
     );
     return transform[0] || {};
+  }
+
+  async tdsReport(query: any, deviceNumber: string) {
+    const device = await this.devicesService.findOneWithSerialNumber({
+      serialNumber: deviceNumber,
+    });
+
+    const { serialNumber, tenant, type } = device;
+    const {
+      startTime,
+      endTime,
+    }: { fields: string; startTime: string; endTime: string } = query;
+
+    const fluxQuery = `
+    from(bucket: "${tenant?.name}")
+    |> range(start: ${startTime}, stop: ${endTime})
+    |> filter(fn: (r) => r["_measurement"] == "${type}")
+    |> filter(fn: (r) => r["device"] == "${serialNumber}")
+    |> filter(fn: (r) => r["_field"] == "salinity" or r["_field"] == "tds" or r["_field"] == "temperature" or r["_field"] == "conductivity")
+    |> max()
+    |> drop(columns: ["_start", "_stop"])`;
+
+    const result = await this.queryApi.collectRows(fluxQuery);
+    const refactoredData = result.reduce(
+      (acc: any, { result: _x, table: _y, _measurement: _z, ...data }) => {
+        const key = data._field;
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        if (key !== 'salinity') data._value *= 0.1;
+        acc[key] = data;
+        return acc;
+      },
+      {},
+    );
+    return refactoredData;
   }
 }

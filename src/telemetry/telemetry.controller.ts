@@ -45,15 +45,18 @@ export class TelemetryController {
     };
   }
 
-  @Get('/flow-usage/:device')
-  @RequestLogs('getFlowUsageTelemetry')
+  @Get('/report/:device')
+  @RequestLogs('getReportTelemetry')
   @HttpCode(HttpStatus.OK)
   @UseGuards(ApiKeysGuard)
-  async flowUsage(@Query() query: any, @Param('device') device: string) {
-    const flowUsage = await this.telemetryService.flowUsage(query, device);
+  async volumeUsage(@Query() query: any, @Param('device') device: string) {
+    const [volumeUsage, tdsReport] = await Promise.all([
+      this.telemetryService.volumeUsage(query, device),
+      this.telemetryService.tdsReport(query, device),
+    ]);
     return {
       status: 'success',
-      data: { flowUsage },
+      data: { volumeUsage, tdsReport },
     };
   }
 }
