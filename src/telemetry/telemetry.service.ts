@@ -51,15 +51,14 @@ export class TelemetryService {
     |> last()
     |> drop(columns: ["_start", "_stop"])`;
 
-    const result = await this.queryApi.collectRows(fluxQuery);
-    const refactoredData = result.reduce(
-      (acc: any, { result: _x, table: _y, _measurement: _z, ...data }) => {
-        acc[data._field] = data;
-        return acc;
-      },
-      {},
-    );
-    return refactoredData;
+    const resultQuery = await this.queryApi.collectRows(fluxQuery);
+    const obj = {};
+    fields.split(',').forEach((data) => {
+      const dataInflux =
+        (resultQuery.find((x: any) => x._field === data) as any) || null;
+      obj[data] = dataInflux;
+    });
+    return obj;
   }
 
   async findHistory(query: any, deviceNumber: string) {
@@ -112,19 +111,15 @@ export class TelemetryService {
     ${aggreateFlux}
     |> drop(columns: ["_start", "_stop"])`;
 
-    const result = await this.queryApi.collectRows(fluxQuery);
-    const refactoredData = result.reduce(
-      (acc: any, { result: _x, table: _y, _measurement: _z, ...data }) => {
-        const key = data._field;
-        if (!acc[key]) {
-          acc[key] = [];
-        }
-        acc[key].push(data);
-        return acc;
-      },
-      {},
-    );
-    return refactoredData;
+    const resultQuery = await this.queryApi.collectRows(fluxQuery);
+    const obj = {};
+    fields.split(',').forEach((data) => {
+      const dataInflux = resultQuery.filter(
+        (x: any) => x._field === data,
+      ) as any;
+      obj[data] = dataInflux;
+    });
+    return obj;
   }
 
   async volumeUsage(query: any, deviceNumber: string) {
