@@ -59,4 +59,16 @@ export class TelemetryController {
       data: { volumeUsage, tdsReport },
     };
   }
+
+  @Get('/status-device/:tenant')
+  @RequestLogs('getStatusDeviceTelemetry')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(ApiKeysGuard)
+  async statusDevice(@Param('tenant') tenant: string) {
+    const statusDevice = await this.telemetryService.statusDevice(tenant);
+    return {
+      status: 'success',
+      data: { statusDevice },
+    };
+  }
 }

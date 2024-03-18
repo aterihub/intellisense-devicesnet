@@ -3,6 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DevicesService } from 'src/devices/devices.service';
 import { INFLUXDB_CLIENT } from 'src/influxdb/influxdb.constant';
+import { TenantsService } from 'src/tenants/tenants.service';
 
 Injectable();
 export class TelemetryService {
@@ -12,6 +13,7 @@ export class TelemetryService {
     @Inject(INFLUXDB_CLIENT) private influx: InfluxDB,
     private configService: ConfigService,
     private devicesService: DevicesService,
+    private tenantsService: TenantsService,
   ) {
     const org = this.configService.get('INFLUXDB_ORG_ID');
     const queryApi = this.influx.getQueryApi(org);
@@ -186,5 +188,40 @@ export class TelemetryService {
       {},
     );
     return refactoredData;
+  }
+
+  async statusDevice(tenantName: string) {
+    const tenant = await this.tenantsService.findOne({
+      name: tenantName,
+    });
+    const devices = await this.devicesService.findAll({
+      where: {
+        tenantId: tenant.id,
+      },
+    });
+    const filterDevices = devices
+      .map((device) => `r["device"] == "${device.serialNumber}"`)
+      .join(' or ');
+    const fluxQuery = `
+    from(bucket: "${tenant.name}")
+    |> range(start: 0)
+    |> filter(fn: (r) => r["_measurement"] == "devices-heart-beat")
+    |> filter(fn: (r) => ${filterDevices})
+    |> last()
+    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+    |> group(columns: ["device"])
+    |> last(column: "device")
+    |> drop(columns: ["_start", "_stop"])`;
+
+    const result = await this.queryApi.collectRows(fluxQuery);
+    const dataOnline = result.map(({ result: _x, table: _y, ...data }) => {
+      const point = data;
+      const diff =
+        (new Date().getTime() - new Date(point._time as string).getTime()) /
+        1000;
+      point['status'] = diff < 15 ? 'ONLINE' : 'OFFLINE';
+      return point;
+    });
+    return dataOnline;
   }
 }
