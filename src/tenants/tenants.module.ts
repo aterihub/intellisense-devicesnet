@@ -8,5 +8,6 @@ import { InfluxdbClientModule } from 'src/influxdb/influxdb.module';
   imports: [AuthModule, InfluxdbClientModule],
   controllers: [TenantsController],
   providers: [TenantsService],
+  exports: [TenantsService],
 })
 export class TenantsModule {}
