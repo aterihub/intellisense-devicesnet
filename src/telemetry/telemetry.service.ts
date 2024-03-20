@@ -136,13 +136,20 @@ export class TelemetryService {
     }: { fields: string; startTime: string; endTime: string } = query;
 
     const fluxQuery = `
-    from(bucket: "${tenant?.name}")
+    data = from(bucket: "${tenant?.name}")
     |> range(start: ${startTime}, stop: ${endTime})
     |> filter(fn: (r) => r["_measurement"] == "${type}")
     |> filter(fn: (r) => r["device"] == "${serialNumber}")
     |> filter(fn: (r) => r["_field"] == "volume")
-    |> spread()
-    |> drop(columns: ["_start", "_stop"])`;
+    |> drop(columns: ["_start", "_stop"])
+    
+    first = data |> first()
+    last = data |> last()
+
+    union(tables: [first, last])
+    |> sort(columns: ["_time"])
+    |> difference(nonNegative: false, columns: ["_value"])
+    |> drop(columns: ["_time"])`;
 
     const result = await this.queryApi.collectRows(fluxQuery);
     const transform = result.map(
