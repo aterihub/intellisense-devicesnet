@@ -214,12 +214,11 @@ export class TelemetryService {
     |> drop(columns: ["_start", "_stop"])`;
 
     const result = await this.queryApi.collectRows(fluxQuery);
+    const timeNow = new Date().getTime();
     const dataOnline = result.map(({ result: _x, table: _y, ...data }) => {
       const point = data;
-      const diff =
-        (new Date().getTime() - new Date(point._time as string).getTime()) /
-        1000;
-      point['status'] = diff < 15 ? 'ONLINE' : 'OFFLINE';
+      const diff = (timeNow - new Date(point._time as string).getTime()) / 1000;
+      point['status'] = diff < 60 ? 'ONLINE' : 'OFFLINE';
       return point;
     });
     return dataOnline;
