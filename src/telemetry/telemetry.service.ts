@@ -226,6 +226,9 @@ export class TelemetryService {
       const point = data;
       const diff = (timeNow - new Date(point._time as string).getTime()) / 1000;
       point['status'] = diff < 60 ? 'ONLINE' : 'OFFLINE';
+      point['alias'] =
+        devices.find((device) => device.serialNumber === point.device)?.alias ||
+        point.device;
       return point;
     });
     return dataOnline;
