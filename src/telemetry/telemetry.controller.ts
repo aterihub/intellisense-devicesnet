@@ -14,6 +14,7 @@ import {
 import { ApiKeysGuard } from 'src/api-keys/guards/api-keys.guard';
 import { RequestLogs } from 'src/request-logs/request-logs.decorator';
 import { TelemetryService } from './telemetry.service';
+import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 
 @Controller('telemetry')
 @UsePipes(ZodValidationPipe)
@@ -65,6 +66,18 @@ export class TelemetryController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(ApiKeysGuard)
   async statusDevice(@Param('tenant') tenant: string) {
+    const statusDevice = await this.telemetryService.statusDevice(tenant);
+    return {
+      status: 'success',
+      data: { statusDevice },
+    };
+  }
+
+  @Get('/access-token/status-device/:tenant')
+  @RequestLogs('getStatusDeviceTelemetry')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(AccessTokenGuard)
+  async accessTokenStatusDevice(@Param('tenant') tenant: string) {
     const statusDevice = await this.telemetryService.statusDevice(tenant);
     return {
       status: 'success',
