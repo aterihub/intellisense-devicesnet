@@ -30,7 +30,7 @@ export class TelemetryController {
     const telemetry = await this.telemetryService.findLast(query, device);
     return {
       status: 'success',
-      data: { telemetry },
+      data: { ...telemetry },
     };
   }
 

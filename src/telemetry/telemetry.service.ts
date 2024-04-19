@@ -60,7 +60,30 @@ export class TelemetryService {
         (resultQuery.find((x: any) => x._field === data) as any) || null;
       obj[data] = dataInflux;
     });
-    return obj;
+
+    const statusFlux = `
+    from(bucket: "${tenant?.name}")
+    |> range(start: 0)
+    |> filter(fn: (r) => r["_measurement"] == "devices-heart-beat")
+    |> filter(fn: (r) => r["device"] == "${serialNumber}")
+    |> last()
+    |> pivot(rowKey:["_time"], columnKey: ["_field"], valueColumn: "_value")
+    |> group(columns: ["device"])
+    |> last(column: "device")
+    |> drop(columns: ["_start", "_stop"])`;
+    const resultStatus = await this.queryApi.collectRows(statusFlux);
+    const timeNow = new Date().getTime();
+    const dataOnline = resultStatus.map(
+      ({ result: _x, table: _y, ...data }) => {
+        const point = data;
+        const diff =
+          (timeNow - new Date(point._time as string).getTime()) / 1000;
+        point['status'] = diff < 60 ? 'ONLINE' : 'OFFLINE';
+        point['alias'] = device.alias;
+        return point;
+      },
+    );
+    return { telemetry: obj, statusDevice: dataOnline[0] };
   }
 
   async findHistory(query: any, deviceNumber: string) {
