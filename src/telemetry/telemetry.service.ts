@@ -177,7 +177,7 @@ export class TelemetryService {
     const result = await this.queryApi.collectRows(fluxQuery);
     const transform = result.map(
       ({ result: _x, table: _y, _measurement: _z, ...data }) => {
-        data._value *= 0.01;
+        data._value = data._value * 0.01 < 0 ? 0 : data._value * 0.01;
         return data;
       },
     );
