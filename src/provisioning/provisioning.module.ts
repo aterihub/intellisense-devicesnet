@@ -12,8 +12,7 @@ import { ProvisioningService } from './provisioning.service';
         name: 'MQTT_SERVICE',
         transport: Transport.MQTT,
         options: {
-          host: process.env.MQTT_HOST,
-          port: parseInt(process.env.MQTT_PORT as string),
+          url: process.env.MQTT_HOST,
         },
       },
     ]),
