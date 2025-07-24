@@ -51,6 +51,10 @@ export class DeviceNatsConsumer {
           metaDevice.tenant.name!,
         );
 
+        // Check if loraRssi is a valid number, otherwise set to 0
+        const fixLoraRssi =
+          typeof loraRssi === 'number' && !isNaN(loraRssi) ? loraRssi : 0;
+
         const point = new Point('devices-heart-beat');
         point.tag('gateway', gateway);
         point.tag('device', device);
@@ -58,7 +62,7 @@ export class DeviceNatsConsumer {
         point.floatField('humidity', humidity);
         point.intField('messageId', messageId);
         point.intField('uptime', uptime);
-        point.intField('loraRssi', loraRssi);
+        point.intField('loraRssi', fixLoraRssi);
         point.intField('hwVersion', hwVersion);
         point.intField('fwVersion', fwVersion);
 
